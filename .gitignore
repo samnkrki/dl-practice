@@ -1,1 +1,6 @@
+output
+*.zip
+features
+*.h5
+*.pkl
 __pycache__
