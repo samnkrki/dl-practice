@@ -16,28 +16,6 @@ from keras import layers
 from keras.layers import Conv2D,AveragePooling2D, Flatten, Dense
 from keras import optimizers, losses
 
-
-EPOCH = 10
-BATCH_SIZE = 128
-
-def preprocess():
-    pass
-
-def show_input():
-    pass
-
-def Lenet():
-    pass
-
-def plot_confusion_matrix():
-    pass
-
-def predict():
-    pass
-
-def save_model():
-    pass
-
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 print(x_train.shape, y_train.shape)
