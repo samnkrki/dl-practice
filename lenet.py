@@ -9,12 +9,12 @@ lenet Implementation
 
 import tensorflow as tf
 import tensorflow.keras as keras
-from keras.datasets import mnist
+from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
 import numpy as np
-from keras import layers
-from keras.layers import Conv2D,AveragePooling2D, Flatten, Dense
-from keras import optimizers, losses
+from tensorflow.keras import layers
+from tensorflow.keras.layers import Conv2D,AveragePooling2D, Flatten, Dense
+from tensorflow.keras import optimizers, losses
 
 from sklearn.metrics import confusion_matrix
 import seaborn as sns 
