@@ -20,13 +20,18 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns 
 import numpy as np
 
-
+#initialize gpu
+gpu_devices = tf.config.experimental.list_physical_devices('GPU')
+for device in gpu_devices:
+    tf.config.experimental.set_memory_growth(device, True)
+    
 EPOCH = 25
 BATCH_SIZE = 128
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 def reshape(x_train, x_test):
+    print(x_train.shape, 'train shapre')
     x_train=x_train.reshape((x_train.shape[0],x_train.shape[1],x_train.shape[2],1))
     x_test=x_test.reshape((x_test.shape[0],x_test.shape[1],x_test.shape[2],1))
     
@@ -109,7 +114,7 @@ print(f'Accuracy: {accuracy*100}')
 summary_history(x)
 
 #save model
-model.save('./saved_models/lenet-mnist.h5')
+model.save('./saved_models/lenet-mnist')
 
 # predict labels for the test set
 y_test_pred = []
@@ -128,3 +133,27 @@ for i in range(range_val):
 
 y_test_pred = np.asarray(y_test_pred)
 plot_confusion_matrix(y_test[:range_val], y_test_pred)
+
+
+from tensorflow.keras.models import load_model
+import cv2
+import numpy as np
+
+def external_test():
+    model = load_model('./saved_models/lenet-mnist')
+
+    model.compile(optimizer=optimizers.SGD(lr=0.01), 
+                 loss='sparse_categorical_crossentropy',
+                 metrics=['accuracy'])
+    
+    img = cv2.imread('./assets/5.jpg')
+    print(img.shape, 'image is here')
+    img = cv2.resize(img,(28,28))
+    img = np.reshape(img,[1,28,28,1])
+    #img = img/255
+    #print(img)
+    #classes = model.predict_classes(img)
+    
+    #print(classes)
+    
+external_test()
