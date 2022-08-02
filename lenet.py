@@ -134,7 +134,7 @@ for i in range(range_val):
 y_test_pred = np.asarray(y_test_pred)
 plot_confusion_matrix(y_test[:range_val], y_test_pred)
 
-
+'''
 from tensorflow.keras.models import load_model
 import cv2
 import numpy as np
@@ -149,11 +149,13 @@ def external_test():
     img = cv2.imread('./assets/5.jpg')
     print(img.shape, 'image is here')
     img = cv2.resize(img,(28,28))
-    img = np.reshape(img,[1,28,28,1])
-    #img = img/255
-    #print(img)
+    print(img, 'image is here')
+    img = np.reshape(img,(1,28,28,1))
+    img = img/255
+    print(img)
     #classes = model.predict_classes(img)
     
     #print(classes)
     
 external_test()
+'''

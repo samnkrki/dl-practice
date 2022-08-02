@@ -159,7 +159,7 @@ model.fit(train_ds,
           callbacks=[tensorboard_cb])
 
 # tensorboard --logdir logs
-
+'''
 # https://www.tensorflow.org/guide/keras/train_and_evaluate
 print("Evaluate")
 result = model.evaluate(test_ds)
@@ -179,7 +179,7 @@ def external_test():
     img = cv2.imread('./assets/bird.jpg')
     
     img = cv2.resize(img,(227,227))
-    img = np.reshape(img,[1,227,227,3])
+    img = np.reshape(img,(1,227,227,3))
     print(img/255, 'image is here')
     img = img.astype('float')/255
     #print(img)
@@ -188,3 +188,4 @@ def external_test():
     print(classes)
     
 external_test()
+'''
