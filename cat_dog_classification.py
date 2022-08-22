@@ -1,0 +1,93 @@
+
+'''
+https://stackoverflow.com/questions/66714485/how-can-i-train-my-cnn-model-on-dataset-from-a-csv-file
+https://datatofish.com/list-to-dataframe/
+
+'''
+import tensorflow as tf
+from glob import glob
+from sklearn.model_selection import train_test_split
+import os
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
+import pandas as pd
+
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+def get_dataset(dataset_root):
+    train_folder = [];
+    test_folder = [];
+    total_classes = 0;
+    for root,dirs,files in os.walk(dataset_root):
+        total_classes = len(dirs)
+        for each_dir in dirs:
+            path_to_class = glob(os.path.join(root, each_dir) + '/*.jpg')
+            train, test = train_test_split([path_to_class, each_dir], test_size=0.30) # train, test path is captured, equal split from each folder
+            train_folder.append(train)
+            test_folder.append(test)
+
+    return train_folder, test_folder, total_classes
+
+#flatten array of items from each folder to a single train array
+def flatten_train_test():
+    train_items, test_items, total_classes =  get_dataset('/home/samin/Documents/datasets/catsAndDogs/PetImages')
+    return [item for sublist in train_items for item in sublist], [item for sublist in test_items for item in sublist], total_classes
+    
+train_data, test_data, total_class = flatten_train_test()
+print(train_data)
+#take random items
+
+def get_random_sample(total_list, sample_num=1):
+    return np.random.choice(train_data, size=sample_num, replace=False, p=None)
+
+plotting_items = get_random_sample(train_data, 25);
+
+print(plotting_items)
+
+def plot_images(plot_list, row, col):
+    plt.figure(figsize=(12,9))
+    for (i,each_img_path) in enumerate(plot_list):
+        label = each_img_path.split("/")[-2]
+        print(each_img_path)
+        im = Image.open(each_img_path).convert('RGB')
+        plt.subplot(row, col, i+1)
+        plt.title(label)
+        plt.imshow(np.asarray(im))
+        plt.axis('off')
+        
+plot_images(plotting_items, 5,5)
+
+
+def init_model():    
+    #creating a model
+    base_model = InceptionV3(weights='imagenet', include_top=False)
+
+    x = base_model.output
+    x = GlobalAveragePooling2D(name='avg_pool')(x)
+    x = Dropout(0.4)(x)
+    preds = Dense(total_class, activation='softmax')(x)
+    model = Model(inputs=base_model.input, outputs = preds)
+
+
+    #add transfer learning
+    for layer in base_model.layers:
+        layer.trainable = False
+        
+    model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+
+IMG_WIDTH = 299
+IMG_HEIGHT=299
+BATCH_SIZE=32
+EPOCHS=50
+
+#data prepration
+train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
+val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
+
+train_generator = train_datagen.flow_from_dataframe(train_data, x_col='filepath', y_col='label')
+
+'''        '''
