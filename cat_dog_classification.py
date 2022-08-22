@@ -18,6 +18,7 @@ import pandas as pd
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+
 def get_dataset(dataset_root):
     train_folder = [];
     test_folder = [];
@@ -26,7 +27,7 @@ def get_dataset(dataset_root):
         total_classes = len(dirs)
         for each_dir in dirs:
             path_to_class = glob(os.path.join(root, each_dir) + '/*.jpg')
-            train, test = train_test_split([path_to_class, each_dir], test_size=0.30) # train, test path is captured, equal split from each folder
+            train, test = train_test_split(path_to_class, test_size=0.30) # train, test path is captured, equal split from each folder
             train_folder.append(train)
             test_folder.append(test)
 
@@ -38,7 +39,16 @@ def flatten_train_test():
     return [item for sublist in train_items for item in sublist], [item for sublist in test_items for item in sublist], total_classes
     
 train_data, test_data, total_class = flatten_train_test()
-print(train_data)
+
+def convert_to_df(data):
+    obj = {
+        'filepath': data,
+        'label': [datum.split('/')[-2] for datum in data]
+        }
+    return pd.DataFrame(obj, columns = ['filepath','label'])
+
+test_df = convert_to_df(test_data)
+train_df = convert_to_df(train_data)
 #take random items
 
 def get_random_sample(total_list, sample_num=1):
@@ -62,22 +72,21 @@ def plot_images(plot_list, row, col):
 plot_images(plotting_items, 5,5)
 
 
-def init_model():    
-    #creating a model
-    base_model = InceptionV3(weights='imagenet', include_top=False)
+#creating a model
+base_model = InceptionV3(weights='imagenet', include_top=False)
 
-    x = base_model.output
-    x = GlobalAveragePooling2D(name='avg_pool')(x)
-    x = Dropout(0.4)(x)
-    preds = Dense(total_class, activation='softmax')(x)
-    model = Model(inputs=base_model.input, outputs = preds)
+x = base_model.output
+x = GlobalAveragePooling2D(name='avg_pool')(x)
+x = Dropout(0.4)(x)
+preds = Dense(total_class, activation='softmax')(x)
+model = Model(inputs=base_model.input, outputs = preds)
 
 
-    #add transfer learning
-    for layer in base_model.layers:
-        layer.trainable = False
-        
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+#add transfer learning
+for layer in base_model.layers:
+    layer.trainable = False
+    
+model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 
 IMG_WIDTH = 299
 IMG_HEIGHT=299
@@ -88,6 +97,12 @@ EPOCHS=50
 train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
 val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
 
-train_generator = train_datagen.flow_from_dataframe(train_data, x_col='filepath', y_col='label')
+train_generator = train_datagen.flow_from_dataframe(train_df, x_col='filepath', y_col='label', class_mode='categorical', batch_size=BATCH_SIZE, target_size=(IMG_HEIGHT, IMG_WIDTH))
+validation_generator = train_datagen.flow_from_dataframe(train_df, x_col='filepath', y_col='label', class_mode='categorical', batch_size=BATCH_SIZE, target_size=(IMG_HEIGHT, IMG_WIDTH))
+
+STEPS_PER_EPOCH=320
+VALIDATION_STEPS=64
+
+history = model.fit(train_generator, epochs=EPOCHS, validation_steps=VALIDATION_STEPS, validation_data=validation_generator)
 
 '''        '''
