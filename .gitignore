@@ -4,5 +4,6 @@ features
 *.h5
 *.pkl
 __pycache__
-saved_models
-logs/fit/*
+logs/*
+outputs/*
+training_1/*

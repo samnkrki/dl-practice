@@ -24,6 +24,11 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 #import cv2
 
+#initialize gpu
+gpu_devices = tf.config.experimental.list_physical_devices('GPU')
+for device in gpu_devices:
+    tf.config.experimental.set_memory_growth(device, True)
+    
 tf.config.list_physical_devices('GPU')
 if tf.test.gpu_device_name():
     print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
@@ -145,7 +150,7 @@ tensorboard_cb = keras.callbacks.TensorBoard(run_logdir)
 model.compile(loss='sparse_categorical_crossentropy', optimizer=tf.optimizers.SGD(lr=0.001), metrics=['accuracy'])
 model.summary()
 
-model.save('outputs/cifar10_alexnet.h5')
+model.save('outputs/cifar10_alexnet')
 
 model.fit(train_ds,
           epochs=50,
@@ -154,8 +159,33 @@ model.fit(train_ds,
           callbacks=[tensorboard_cb])
 
 # tensorboard --logdir logs
-
+'''
 # https://www.tensorflow.org/guide/keras/train_and_evaluate
 print("Evaluate")
 result = model.evaluate(test_ds)
 dict(zip(model.metrics_names, result))
+
+from tensorflow.keras.models import load_model
+import cv2
+import numpy as np
+
+def external_test():
+    model = load_model('outputs/cifar10_alexnet')
+
+    model.compile(optimizer=optimizers.SGD(lr=0.01), 
+                 loss='sparse_categorical_crossentropy',
+                 metrics=['accuracy'])
+    
+    img = cv2.imread('./assets/bird.jpg')
+    
+    img = cv2.resize(img,(227,227))
+    img = np.reshape(img,(1,227,227,3))
+    print(img/255, 'image is here')
+    img = img.astype('float')/255
+    #print(img)
+    classes = model.predict_classes(img)
+    print(model.predict(img))
+    print(classes)
+    
+external_test()
+'''
