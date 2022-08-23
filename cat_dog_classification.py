@@ -18,13 +18,12 @@ import pandas as pd
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-
 def get_dataset(dataset_root):
     train_folder = [];
     test_folder = [];
     total_classes = 0;
     for root,dirs,files in os.walk(dataset_root):
-        total_classes = len(dirs)
+        total_classes = total_classes + len(dirs)
         for each_dir in dirs:
             path_to_class = glob(os.path.join(root, each_dir) + '/*.jpg')
             train, test = train_test_split(path_to_class, test_size=0.30) # train, test path is captured, equal split from each folder
@@ -62,7 +61,7 @@ def plot_images(plot_list, row, col):
     plt.figure(figsize=(12,9))
     for (i,each_img_path) in enumerate(plot_list):
         label = each_img_path.split("/")[-2]
-        print(each_img_path)
+        #print(each_img_path)
         im = Image.open(each_img_path).convert('RGB')
         plt.subplot(row, col, i+1)
         plt.title(label)
@@ -88,21 +87,21 @@ for layer in base_model.layers:
     
 model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 
-IMG_WIDTH = 299
-IMG_HEIGHT=299
-BATCH_SIZE=32
+IMG_WIDTH = 224
+IMG_HEIGHT=224
+BATCH_SIZE=320
 EPOCHS=50
 
 #data prepration
-train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
-val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
+train_datagen = ImageDataGenerator(preprocessing_function=tf.keras.applications.inception_v3.preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
+val_datagen = ImageDataGenerator(preprocessing_function=tf.keras.applications.inception_v3.preprocess_input, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True, fill_mode='nearest')
 
 train_generator = train_datagen.flow_from_dataframe(train_df, x_col='filepath', y_col='label', class_mode='categorical', batch_size=BATCH_SIZE, target_size=(IMG_HEIGHT, IMG_WIDTH))
-validation_generator = train_datagen.flow_from_dataframe(train_df, x_col='filepath', y_col='label', class_mode='categorical', batch_size=BATCH_SIZE, target_size=(IMG_HEIGHT, IMG_WIDTH))
+validation_generator = train_datagen.flow_from_dataframe(test_df, x_col='filepath', y_col='label', class_mode='categorical', batch_size=BATCH_SIZE, target_size=(IMG_HEIGHT, IMG_WIDTH))
 
-STEPS_PER_EPOCH=320
-VALIDATION_STEPS=64
+STEPS_PER_EPOCH=32
+VALIDATION_STEPS=6
 
-history = model.fit(train_generator, epochs=EPOCHS, validation_steps=VALIDATION_STEPS, validation_data=validation_generator)
+history = model.fit(train_generator, epochs=EPOCHS, validation_steps=6)
 
 '''        '''
