@@ -37,7 +37,9 @@ def get_dataset(dataset_root):
 
 #flatten array of items from each folder to a single train array
 def flatten_train_test():
-    train_items, test_items, total_classes =  get_dataset('/home/samin/Documents/datasets/catsAndDogs/PetImages')
+    #path="/home/samin/Documents/datasets/catsAndDogs/PetImages"
+    path = "/home/samin/Documents/datasets/flower_photos"
+    train_items, test_items, total_classes =  get_dataset(path)
     return [item for sublist in train_items for item in sublist], [item for sublist in test_items for item in sublist], total_classes
     
 train_data, test_data, total_class = flatten_train_test()
@@ -92,7 +94,7 @@ model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['ac
 
 IMG_WIDTH = 224
 IMG_HEIGHT=224
-BATCH_SIZE=320
+BATCH_SIZE=32
 EPOCHS=5
 IMG_SIZE=(IMG_WIDTH, IMG_HEIGHT)
 
@@ -135,7 +137,8 @@ def predict(model, img):
     return preds[0]
 
 def plot_pred(img, preds):
-    labels = ["cat", "dog"]
+    #labels = ["cat", "dog"]
+    labels = ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
     gs = gridspec.GridSpec(2, 1, height_ratios=[4,1])
     plt.figure(figsize=(8,8))
     plt.subplot(gs[0])
@@ -149,7 +152,7 @@ def plot_pred(img, preds):
     
 model = load_model(MODEL_FILE)
 
-pred_src='assets/lion.jpg'
+pred_src='assets/rose.jpg'
 
 
 img = image.load_img(pred_src, target_size=IMG_SIZE)
