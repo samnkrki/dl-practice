@@ -39,6 +39,7 @@ def get_dataset(dataset_root):
 def flatten_train_test():
     #path="/home/samin/Documents/datasets/catsAndDogs/PetImages"
     path = "/home/samin/Documents/datasets/flower_photos"
+    path='/media/samin/MadRabbit/datasets/flower_photos'
     train_items, test_items, total_classes =  get_dataset(path)
     return [item for sublist in train_items for item in sublist], [item for sublist in test_items for item in sublist], total_classes
     
@@ -139,13 +140,14 @@ def predict(model, img):
 def plot_pred(img, preds):
     #labels = ["cat", "dog"]
     labels = ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
-    gs = gridspec.GridSpec(2, 1, height_ratios=[4,1])
+    gs = gridspec.GridSpec(total_class, 1)
+    print(gs)
     plt.figure(figsize=(8,8))
     plt.subplot(gs[0])
     plt.imshow(np.asarray(img))
     plt.subplot(gs[1])
-    plt.barh([0,1], preds, alpha=0.5)
-    plt.yticks([0,1], labels)
+    plt.barh([i for i in range(len(labels))], preds, alpha=0.5)
+    plt.yticks([i for i in range(len(labels))], labels)
     plt.xlabel('Probability')
     plt.xlim(0,1)
     plt.tight_layout()
