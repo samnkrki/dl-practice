@@ -39,6 +39,7 @@ else:
 EPOCH = 1
 BATCH_SIZE = 20
 CLASS_NAMES= ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+CHECKPOINT_PATH='training_1/cp.cpkt'
 
 (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
 print(train_labels.shape)
@@ -110,7 +111,6 @@ validation_ds = (validation_ds
                   .map(process_images)
                   .shuffle(buffer_size=validation_ds_size/100)
                   .batch(batch_size=BATCH_SIZE, drop_remainder=True))
-print(train_ds)
 
 def AlexNet():
     model = keras.models.Sequential([
