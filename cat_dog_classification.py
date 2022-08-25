@@ -1,9 +1,13 @@
 
-'''
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on August 22 2022, 09:05 AM
 https://stackoverflow.com/questions/66714485/how-can-i-train-my-cnn-model-on-dataset-from-a-csv-file
 https://datatofish.com/list-to-dataframe/
+@author: samin
+"""
 
-'''
 import tensorflow as tf
 from glob import glob
 from sklearn.model_selection import train_test_split
